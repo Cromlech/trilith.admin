@@ -1,0 +1,74 @@
+<form action="." tal:attributes="action view.action_url;
+				 id view.htmlId();
+				 method view.formMethod;
+				 enctype view.enctype">
+  
+  <h1 tal:condition="view.label"
+      tal:content="view.label">Label</h1>
+
+  <p tal:condition="view.description"
+     tal:content="view.description">Description</p>
+
+  <p class="form-status"
+     tal:condition="view.status"
+     tal:content="view.status">Status</p>
+
+  <div class="form-error"
+       tal:condition="view.errors">
+    <tal:global tal:condition="view.formErrors">
+      <h3>Erreurs globales</h3>
+      <ul tal:repeat="error view.formErrors">
+	<li> <span tal:replace="error.title" /> </li>
+      </ul>
+    </tal:global>
+    <tal:details tal:condition="view.errors">
+      <h3>Details</h3>
+      <ul>
+	<tal:loop repeat="error view.errors">
+	  <li tal:condition="error.identifier != 'form'">
+	    <tal:field 
+		define="field view.fieldWidgets.get(error.identifier)">
+	      <strong tal:content="field.title" /> :
+	      <span tal:replace="error.title" />
+	    </tal:field>
+	  </li>
+	</tal:loop>
+      </ul>
+    </tal:details>
+  </div>
+
+  <div class="fields"
+       tal:condition="view.fieldWidgets">
+    <div class="field" tal:repeat="widget view.fieldWidgets">
+      <label class="field-label" for="#"
+	     tal:attributes="for widget.htmlId()"
+	     tal:content="widget.title"
+	     tal:condition="widget.visible">
+	Label
+      </label>
+      <span class="field-required"
+	    i18n:translate=""
+	    tal:condition="widget.required and widget.visible"
+	    >(required)</span>
+      
+      <p tal:condition="widget.description"
+	 tal:content="widget.description"
+	 class="field-description" />
+      
+      <p class="field-error"
+	 tal:define="error widget.error"
+	 tal:condition="error"
+	 tal:content="error.title" />
+      
+      <tal:widget tal:content="structure widget.render()" />
+    </div>
+  </div>
+  
+  <div class="actions"
+       tal:condition="view.actionWidgets">
+    <div class="action" tal:repeat="widget view.actionWidgets">
+      <tal:widget tal:content="structure widget.render()" />
+    </div>
+  </div>
+  
+</form>

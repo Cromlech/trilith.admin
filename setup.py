@@ -4,9 +4,24 @@ import os
 version = '0.1'
 
 install_requires = [
-    'setuptools',
+    'barrel',
+    'crom',
     'cromlech.browser',
+    'cromlech.configuration',
     'cromlech.dawnlight',
+    'cromlech.grok',
+    'cromlech.i18n',
+    'cromlech.location',
+    'cromlech.webob',
+    'dolmen.forms.base',
+    'dolmen.forms.ztk',
+    'dolmen.message',
+    'dolmen.tales',
+    'dolmen.view',
+    'dolmen.viewlet',
+    'setuptools',
+    'zope.interface',
+    'zope.location',
     ]
 
 tests_require = [

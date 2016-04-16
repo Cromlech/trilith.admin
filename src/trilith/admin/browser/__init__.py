@@ -1,8 +1,36 @@
 # -*- coding: utf-8 -*-
 
+from os import path
+
+from cromlech.browser import name, exceptions, request, IResponse
+from cromlech.browser.exceptions import HTTPRedirect
+from cromlech.browser.utils import redirect_exception_response
+from cromlech.webob import Response
+
+from dolmen.forms.base import FAILURE, action, Form, Fields, SuccessMarker
+from dolmen.forms.base import form_component, name, action, utils
+from dolmen.forms.base.components import make_layout_response as form_response
+from dolmen.forms.base.errors import Errors, Error
+from dolmen.forms.ztk.validation import InvariantsValidation
+from dolmen.message import send as website_message
+from dolmen.template import TALTemplate
+from dolmen.view import View, make_layout_response as view_response
+from dolmen.view import view_component, context
+
+from webob.exc import HTTPFound
+from zope.interface import Interface
+
+
+TEMPLATE_DIR = path.join(path.dirname(__file__), 'templates')
+
+
+def tal_template(name):
+    return TALTemplate(path.join(TEMPLATE_DIR, name))
+
+
 @view_component
 @name('add')
-@context()
+@context(Interface)
 class Add(Form):
 
     ignoreContent = True
@@ -10,43 +38,24 @@ class Add(Form):
 
     responseFactory = Response
     make_response = form_response
-    label = u"Données de la Feuille"
+    label = u"Ajout"
     dataValidators = [InvariantsValidation]
 
-    template = tal_template('form.cpt')
+    template = tal_template('form.pt')
     
     @property
     def fields(self):
-        return Fields(*schema.get(self.context.mod.Batch.model))
+        return Fields()
 
     @property
     def action_url(self):
-        return '%s/batch/add_sheet' % str(self.request.script_name)
-        
-    def update(self):
-        complete.need()
-        Form.update(self)
+        return self.request.url
 
-    @action(u"Créer la feuille")
+    @action(u"Créer")
     def create(self):
-        data, errors = self.extractData()
-
-        if errors:
-            self.submissionError = errors
-	    print errors
-            return FAILURE
-
-        model = self.context.mod.Batch.model()
-        utils.set_fields_data(self.fields, model, data)
-        self.context.add(model)
-
-        url = str(self.request.script_name)
-        action_url = '%s/batch/sheets/%s/add_entry' % (url, model.feuille)
-        website_message(u"Feuille créée avec succès.")
-        raise exceptions.HTTPFound(location=action_url)
+        pass
         
     @action(u"Annuler")
     def cancel(self):
-        action_url = str(self.request.script_name) + '/batch'
-        website_message(u"Saisie interrompue.")
+        action_url = str(self.request.script_name)
         raise exceptions.HTTPFound(location=action_url)

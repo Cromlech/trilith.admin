@@ -56,7 +56,7 @@ def manager(accesses, zcml_file, users, clients, grants, tokens):
         with Locale(locale, localizer):
             request = Request(environ)
             root = Admin(users, clients, grants, tokens)
-            response = PUBLISHER.publish(request, root)
+            response = PUBLISHER.publish(request, root, handle_errors=False)
             return response(environ, start_response)
 
     return admin_ui

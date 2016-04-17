@@ -1,0 +1,22 @@
+<div>
+  <h1 tal:content="view.title" />
+  <table class="table table-striped table-bordered">
+    <thead>
+      <tr>
+	<th tal:repeat="field view.fields">
+	  <span tal:content="field.title" />
+	</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr tal:repeat="item view.contents()">
+	<td tal:repeat="field view.describe(item)">
+	  <a tal:omit-tag="field['link'] == None"
+	     tal:attributes="href field['link']; name field['id']">
+	    <span tal:content="field['value']" />
+	  </a>
+	</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from cromlech.location import get_absolute_url
 from cromlech.browser import name, exceptions, request, IResponse
 from cromlech.browser.exceptions import HTTPRedirect
 from cromlech.browser.utils import redirect_exception_response
@@ -17,12 +18,13 @@ from dolmen.view import view_component, context
 from webob.exc import HTTPFound
 from zope.interface import Interface
 
+from trilith.oauth2.interfaces import IStorage
 from . import tal_template
 
 
 @view_component
 @name('add')
-@context(Interface)
+@context(IStorage)
 class Add(Form):
 
     ignoreContent = True
@@ -37,17 +39,23 @@ class Add(Form):
     
     @property
     def fields(self):
-        return Fields()
+        return Fields(*self.context.__factory__.__schema__)
 
     @property
     def action_url(self):
         return self.request.url
 
-    @action(u"Créer")
+    @action(u"Create")
     def create(self):
-        pass
-        
-    @action(u"Annuler")
+        data, errors = self.extractData()
+        if errors:
+            self.submissionError = errors
+            return FAILURE
+        item = self.context.add(**data)
+        action_url = str(get_absolute_url(self.context, self.request))
+        raise exceptions.HTTPFound(location=action_url)
+
+    @action(u"Cancel")
     def cancel(self):
         action_url = str(self.request.script_name)
         raise exceptions.HTTPFound(location=action_url)

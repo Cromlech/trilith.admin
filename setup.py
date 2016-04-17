@@ -15,7 +15,6 @@ install_requires = [
     'cromlech.webob',
     'dolmen.forms.base',
     'dolmen.forms.ztk',
-    'dolmen.forms.crud',
     'dolmen.message',
     'dolmen.tales',
     'dolmen.view',

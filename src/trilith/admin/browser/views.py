@@ -3,7 +3,6 @@
 from cromlech.location import get_absolute_url
 from dolmen.view import View, make_layout_response as view_response
 from dolmen.view import view_component, context, name
-from dolmen.forms.crud import Display
 from trilith.oauth2.interfaces import IClient, IClients
 from . import Page, tal_template
 from .. import Admin
@@ -56,5 +55,7 @@ class ClientsListing(Listing):
 @view_component
 @name('index')
 @context(IClient)
-class ClientIndex(Display):   
-    pass
+class ClientIndex(Page):   
+    
+    def render(self):
+        return u'bloup'

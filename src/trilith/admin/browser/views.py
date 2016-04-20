@@ -6,6 +6,7 @@ from dolmen.forms.base import form_component
 from dolmen.view import view_component, context, name
 from trilith.oauth2.interfaces import IClient, IClients
 from trilith.oauth2.interfaces import IToken, ITokens
+from trilith.oauth2.interfaces import IUser, IUsers
 from . import Page, GenericIndex, tal_template
 from .. import Admin
 
@@ -96,3 +97,21 @@ class TokenIndex(GenericIndex):
     @property
     def label(self):
         return u'Token: %s' % self.context.access_token
+
+
+
+
+
+@view_component
+@name('index')
+@context(IUsers)
+class UsersListing(Listing):   
+
+    title = u"Users"
+    fields = (
+            IUser['username'],
+            IUser['common_name'],
+            IUser['function'],
+        )
+
+

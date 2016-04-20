@@ -12,7 +12,6 @@ from dolmen.forms.base.components import make_layout_response as form_response
 from dolmen.forms.base.errors import Errors, Error
 from dolmen.forms.ztk.validation import InvariantsValidation
 from dolmen.message import send as website_message
-from dolmen.view import View, make_layout_response as view_response
 from dolmen.view import view_component, context
 
 from webob.exc import HTTPFound

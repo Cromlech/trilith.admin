@@ -2,9 +2,11 @@
 
 from cromlech.location import get_absolute_url
 from dolmen.view import View, make_layout_response as view_response
+from dolmen.forms.base import form_component
 from dolmen.view import view_component, context, name
 from trilith.oauth2.interfaces import IClient, IClients
-from . import Page, tal_template
+from trilith.oauth2.interfaces import IToken, ITokens
+from . import Page, GenericIndex, tal_template
 from .. import Admin
 
 
@@ -19,32 +21,26 @@ class Listing(Page):
 
     template = tal_template('storage.pt')
     fields = frozenset()
-
+    link_to = link_on = 'id'
+    
     def update(self):
         self.base_url = get_absolute_url(self.context, self.request)
     
     def contents(self):
         return iter(self.context)
 
-    
-@view_component
-@name('index')
-@context(IClients)
-class ClientsListing(Listing):   
-
-    title = u"Clients"
-    fields = frozenset(
-        (IClient['id'],
-         IClient['name'],
-         IClient['secret']))
-
     def describe(self, item):
         for field in self.fields:
-            if field.__name__ == 'id':
-                link = '%s/%s' % (self.base_url, item.id)
+            value = getattr(item, field.__name__, '')
+            if field.__name__ == self.link_on:
+                if self.link_to != self.link_on:
+                    link_to = getattr(item, self.link_to)
+                else:
+                    link_to = value
+                link = '%s/%s' % (self.base_url, link_to)
             else:
                 link = None
-            value = getattr(item, field.__name__, '')
+
             yield {
                 'id': field.__name__,
                 'link': link,
@@ -52,10 +48,51 @@ class ClientsListing(Listing):
             }
 
 
+@form_component
+@name('index')
+@context(IClients)
+class ClientsListing(Listing):   
+
+    title = u"Clients"
+    fields = (
+        IClient['id'],
+        IClient['name'],
+        IClient['secret'],
+    )
+
+
 @view_component
 @name('index')
 @context(IClient)
-class ClientIndex(Page):   
-    
-    def render(self):
-        return u'bloup'
+class ClientIndex(GenericIndex):   
+
+    @property
+    def label(self):
+        return u'Client: %s' % self.context.name
+
+
+@view_component
+@name('index')
+@context(ITokens)
+class TokensListing(Listing):   
+
+    title = u"Tokens"
+    fields = (
+        IToken['expires'],
+        IToken['client_id'],
+        IToken['user_id'],
+        IToken['access_token'],
+        IToken['refresh_token'],
+        )
+    link_to = 'id'
+    link_on = 'access_token'
+
+
+@view_component
+@name('index')
+@context(IToken)
+class TokenIndex(GenericIndex):   
+
+    @property
+    def label(self):
+        return u'Token: %s' % self.context.access_token

@@ -7,6 +7,7 @@ from dolmen.view import view_component, context, name
 from trilith.oauth2.interfaces import IClient, IClients
 from trilith.oauth2.interfaces import IToken, ITokens
 from trilith.oauth2.interfaces import IUser, IUsers
+from trilith.oauth2.interfaces import IGrant, IGrants
 from . import Page, GenericIndex, tal_template
 from .. import Admin
 
@@ -22,26 +23,19 @@ class Listing(Page):
 
     template = tal_template('storage.pt')
     fields = frozenset()
-    link_to = link_on = 'id'
-    
-    def update(self):
-        self.base_url = get_absolute_url(self.context, self.request)
+    links = {}
     
     def contents(self):
         return iter(self.context)
 
     def describe(self, item):
         for field in self.fields:
-            value = getattr(item, field.__name__, '')
-            if field.__name__ == self.link_on:
-                if self.link_to != self.link_on:
-                    link_to = getattr(item, self.link_to)
-                else:
-                    link_to = value
-                link = '%s/%s' % (self.base_url, link_to)
+            name = field.__name__
+            value = getattr(item, name, '')
+            if field.__name__ in self.links:
+                link = self.links[name].format(self.request.script_name, item)
             else:
                 link = None
-
             yield {
                 'id': field.__name__,
                 'link': link,
@@ -60,7 +54,10 @@ class ClientsListing(Listing):
         IClient['name'],
         IClient['secret'],
     )
-
+    links = {
+        'name': '{0}/clients/{1.id}',
+        }
+    
 
 @view_component
 @name('index')
@@ -85,8 +82,10 @@ class TokensListing(Listing):
         IToken['access_token'],
         IToken['refresh_token'],
         )
-    link_to = 'id'
-    link_on = 'access_token'
+    links = {
+        'access_token': '{0}/tokens/{1.id}',
+        'client_id': '{0}/clients/{1.client_id}',
+        }
 
 
 @view_component
@@ -97,9 +96,6 @@ class TokenIndex(GenericIndex):
     @property
     def label(self):
         return u'Token: %s' % self.context.access_token
-
-
-
 
 
 @view_component
@@ -113,5 +109,45 @@ class UsersListing(Listing):
             IUser['common_name'],
             IUser['function'],
         )
+    links = {
+        'username': '{0}/users/{1.username}',
+        }
 
 
+@view_component
+@name('index')
+@context(IUser)
+class UserIndex(GenericIndex):   
+
+    @property
+    def label(self):
+        return u'User: %s' % self.context.username
+
+
+@view_component
+@name('index')
+@context(IGrants)
+class GrantsListing(Listing):   
+
+    title = u"Grants"
+    fields = (
+            IGrant['client_id'],
+            IGrant['user_id'],
+            IGrant['code'],
+            IGrant['scopes'],
+        )
+    links = {
+        'code': '{0}/grants/{1.id}',
+        'user_id': '{0}/users/{1.user_id}',
+        'client_id': '{0}/clients/{1.client_id}',
+        }
+
+
+@view_component
+@name('index')
+@context(IGrant)
+class GrantIndex(GenericIndex):   
+
+    @property
+    def label(self):
+        return u'Grant: %s' % self.context.code

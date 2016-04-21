@@ -33,7 +33,8 @@ class Listing(Page):
             name = field.__name__
             value = getattr(item, name, '')
             if field.__name__ in self.links:
-                link = self.links[name].format(self.request.script_name, item)
+                link = self.links[name].format(
+                    base_url=self.request.script_name, item=item)
             else:
                 link = None
             yield {
@@ -50,12 +51,12 @@ class ClientsListing(Listing):
 
     title = u"Clients"
     fields = (
-        IClient['id'],
         IClient['name'],
+        IClient['id'],
         IClient['secret'],
     )
     links = {
-        'name': '{0}/clients/{1.id}',
+        'name': '{base_url}/clients/{item.id}',
         }
     
 
@@ -83,8 +84,8 @@ class TokensListing(Listing):
         IToken['refresh_token'],
         )
     links = {
-        'access_token': '{0}/tokens/{1.id}',
-        'client_id': '{0}/clients/{1.client_id}',
+        'access_token': '{base_url}/tokens/{item.id}',
+        'client_id': '{base_url}/clients/{item.client_id}',
         }
 
 
@@ -110,7 +111,7 @@ class UsersListing(Listing):
             IUser['function'],
         )
     links = {
-        'username': '{0}/users/{1.username}',
+        'username': '{base_url}/users/{item.username}',
         }
 
 
@@ -137,9 +138,9 @@ class GrantsListing(Listing):
             IGrant['scopes'],
         )
     links = {
-        'code': '{0}/grants/{1.id}',
-        'user_id': '{0}/users/{1.user_id}',
-        'client_id': '{0}/clients/{1.client_id}',
+        'code': '{base_url}/grants/{item.id}',
+        'user_id': '{base_url}/users/{item.user_id}',
+        'client_id': '{base_url}/clients/{item.client_id}',
         }
 
 

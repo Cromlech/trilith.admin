@@ -45,6 +45,14 @@ html1/DTD/xhtml1-strict.dtd">
 		 tal:attributes="class m.type"
 		 tal:content="structure m.message" />
 	  </div>
+	  <ul class="nav nav-tabs" tal:condition="tabs">
+	    <tal:tabs repeat="tab tabs">
+	      <li tal:attributes="class tab['selected'] and 'active' or ''">
+		<a tal:content="tab['title']"
+		   tal:attributes="href tab['url']">Link</a>
+	      </li>
+	    </tal:tabs>
+	  </ul>
 	  <div tal:replace="structure content" />
 	  
 	  <footer class="footer modal-footer">

@@ -1,14 +1,21 @@
 # -*- coding: utf-8 -*-
 
 import crom
-
-from cromlech.browser import IRequest, ILayout
+from crom.utils import sort_components
+from cromlech.location import get_absolute_url
+from cromlech.browser import IRequest, ILayout, IView
+from cromlech.browser.directives import title
 from cromlech.i18n import getLocalizer
 from cromlech.webob import Response
 from dolmen.message.utils import receive as receive_messages
 from dolmen.viewlet import ViewletManager, viewlet_manager
 from zope.interface import Interface
 from . import BASE_MESSAGE_TYPE, ERROR_MESSAGE_TYPE, tal_template
+
+
+def sorter(component):
+    explicit = crom.order.get_policy(component[1], crom.order.dotted_name, 0)
+    return (explicit, component[1].__module__, component[0])
 
 
 @viewlet_manager
@@ -39,8 +46,26 @@ class BaseLayout(object):
         if localizer is not None:
             localizer.translate
         return None
-        
+
+    def get_tabs(self, view=None):
+        tabs = []
+        base_url = get_absolute_url(self.context, self.request)
+        if view is not None:
+            current = (crom.name.get(view), view.__class__)
+        for name, klass in sort_components(
+                IView.all_components(self.context, self.request), key=sorter):
+            tabs.append({
+                'id': name,
+                'title': title.get(klass) or name,
+                'selected': current == (name, klass),
+                'url': '%s/%s' % (base_url, name),
+                })
+        if len(tabs) == 1 and tabs[0]['selected']:
+            return []
+        return tabs
+
     def namespace(self, **extra):
+        extra['tabs'] = self.get_tabs(extra.get('view'))
         namespace = {
             'context': self.context,
             'request': self.request,

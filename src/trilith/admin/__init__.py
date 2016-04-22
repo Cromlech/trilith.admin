@@ -14,7 +14,7 @@ from cromlech.browser.interfaces import IPublicationRoot
 from cromlech.webob import Request
 from cromlech.dawnlight import traversable
 from zope.interface import implementer, directlyProvides
-from zope.location import Location, ILocation, LocationProxy
+from zope.location import Location, ILocation, locate
 from barrel import cooper
 
 
@@ -28,10 +28,14 @@ PUBLISHER = DawnlightPublisher(
 class Admin(Location):
 
     def __init__(self, users, clients, grants, tokens):
-        self.users = LocationProxy(users, self, 'users')
-        self.clients = LocationProxy(clients, self, 'clients')
-        self.grants = LocationProxy(grants, self, 'grants')
-        self.tokens = LocationProxy(tokens, self, 'tokens')
+        locate(users, self, 'users')
+        locate(clients, self, 'clients')
+        locate(grants, self, 'grants')
+        locate(tokens, self, 'tokens')
+        self.users = users
+        self.clients = clients
+        self.grants = grants
+        self.tokens = tokens
 
 
 def manager(accesses, zcml_file, users, clients, grants, tokens):

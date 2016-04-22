@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from crom import order
 from cromlech.location import get_absolute_url
 from dolmen.view import View, make_layout_response as view_response
 from dolmen.forms.base import form_component
@@ -62,6 +63,7 @@ class ClientsListing(Listing):
 
 @view_component
 @name('index')
+@order(1)
 @context(IClient)
 class ClientIndex(GenericIndex):   
 
@@ -91,6 +93,7 @@ class TokensListing(Listing):
 
 @view_component
 @name('index')
+@order(1)
 @context(IToken)
 class TokenIndex(GenericIndex):   
 
@@ -117,6 +120,7 @@ class UsersListing(Listing):
 
 @view_component
 @name('index')
+@order(1)
 @context(IUser)
 class UserIndex(GenericIndex):   
 
@@ -146,6 +150,7 @@ class GrantsListing(Listing):
 
 @view_component
 @name('index')
+@order(1)
 @context(IGrant)
 class GrantIndex(GenericIndex):   
 
